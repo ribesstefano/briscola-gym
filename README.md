@@ -17,7 +17,7 @@ import briscola_gym
 num_players = 2
 MAX_POINTS = 120
 
-env = gym.make('bruscola_gym:briscola-v0', num_players=num_players)
+env = gym.make('briscola_gym:briscola-v0', num_players=num_players)
 num_actions = env.action_space.n  # 3
 num_actions
 ```
