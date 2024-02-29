@@ -5,7 +5,7 @@ This is a simple implementation of the Italian card game Briscola, using the Ope
 ## Installation
 
 ```bash
-pip install git+
+pip install git+https://github.com/ribesstefano/briscola-gym.git
 ```
 
 ## Usage
