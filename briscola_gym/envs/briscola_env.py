@@ -1,14 +1,16 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
-import gym_briscola.envs.briscola_game
+import briscola_gym.envs.briscola_game
 
 import random
-from gym_briscola.envs.briscola_game import Game
+from briscola_gym.envs.briscola_game import Game
 
 import numpy as np
 
 # https://github.com/openai/gym/blob/master/docs/creating-environments.md
+
+
 class BriscolaEnv(gym.Env):
     """Custom Environment that follows gym interface"""
     metadata = {'render.modes': ['human']}
@@ -31,7 +33,7 @@ class BriscolaEnv(gym.Env):
         # Example for using image as input:
         self.obs_shape = 3 * self.num_players + self.num_players + 3 + 1
         self.observation_space = spaces.Box(low=-np.ones((self.obs_shape,)),
-            high=np.array([41] * self.obs_shape,), dtype=np.float16)
+                                            high=np.array([41] * self.obs_shape,), dtype=np.float16)
         # HEIGHT, WIDTH, N_CHANNELS = 1, 1, 1
         # self.observation_space = spaces.Box(low=0, high=255, shape=
         #                                 (HEIGHT, WIDTH, N_CHANNELS), dtype=np.uint8)
@@ -48,7 +50,8 @@ class BriscolaEnv(gym.Env):
                 for j, card in enumerate(hand.cards):
                     hand_card_embeddings[i * 3 + j] = card.card_id
                 if verbose >= 1:
-                    print('Player {} hand cards: {}'.format(i, hand_card_embeddings[i*3:(i+1)*3]))
+                    print('Player {} hand cards: {}'.format(
+                        i, hand_card_embeddings[i*3:(i+1)*3]))
 
         field_card_embeddings = np.zeros((1 + self.num_players,))
         if self.game.deck.briscola_ref is not None:
@@ -61,13 +64,13 @@ class BriscolaEnv(gym.Env):
 
         # obs = np.concatenate((hand_card_embeddings, field_card_embeddings, np.array([len(self.game.deck)])))
         # obs = np.append(obs, [self.current_player, -1], axis=0)
-        
+
         obs = np.concatenate([
-                              hand_card_embeddings,
-                              field_card_embeddings,
-                              np.array([len(self.game.deck), self.current_player]),
-                            ])
-        
+            hand_card_embeddings,
+            field_card_embeddings,
+            np.array([len(self.game.deck), self.current_player]),
+        ])
+
         return obs.astype(int)
 
     def reset(self):
@@ -104,18 +107,20 @@ class BriscolaEnv(gym.Env):
             done = False
             # Execute one time step within the environment
             self._take_action(self.current_player, action)
-            
+
             # Update the playing player and resolve if all players played
-            self.current_player = (self.current_player + 1) % self.game.num_players
+            self.current_player = (
+                self.current_player + 1) % self.game.num_players
             info = str(self.game.field)
             # Resolve if all players played a card
             if self.num_played_cards == self.num_players:
                 field_score = self.game.field.get_score()
                 team_scores = self.game.field.get_teams_scores()
-                winner_player_id, winning_team_id = self.game.resolve_step(verbose=0)
-                observation = self._next_observation() # We draw the cards in resolve_step
+                winner_player_id, winning_team_id = self.game.resolve_step(
+                    verbose=0)
+                observation = self._next_observation()  # We draw the cards in resolve_step
 
-                winners_reward, losers_reward = field_score, 0 # -field_score
+                winners_reward, losers_reward = field_score, 0  # -field_score
                 # def reward_function():
                 #     winners_reward = 0
                 #     losers_reward = 0
@@ -141,7 +146,7 @@ class BriscolaEnv(gym.Env):
                 # winners_reward, losers_reward = reward_function()
 
                 for i in range(self.num_players):
-                    if i % 2 == winning_team_id: # There are max two players per team
+                    if i % 2 == winning_team_id:  # There are max two players per team
                         reward[i] = winners_reward
                     else:
                         reward[i] = losers_reward
@@ -153,12 +158,12 @@ class BriscolaEnv(gym.Env):
                 observation = self._next_observation()
         else:
             done = True
-            
+
             field_score = self.game.field.get_score()
-            winners_reward, losers_reward = field_score, 0 # -field_score
+            winners_reward, losers_reward = field_score, 0  # -field_score
             winning_team_id, winning_score = self.game.get_winner_team()
             for i in range(self.num_players):
-                if i % 2 == winning_team_id: # There are max two players per team
+                if i % 2 == winning_team_id:  # There are max two players per team
                     reward[i] = winners_reward
                 else:
                     reward[i] = losers_reward
@@ -184,5 +189,5 @@ class BriscolaEnv(gym.Env):
     def render(self, mode='human'):
         print(self.game.teams_score)
 
-    def close (self):
+    def close(self):
         pass

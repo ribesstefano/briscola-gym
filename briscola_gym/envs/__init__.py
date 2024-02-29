@@ -1,2 +1,2 @@
-from gym_briscola.envs.briscola_env import BriscolaEnv
-from gym_briscola.envs.briscola_game import *
+from briscola_gym.envs.briscola_env import BriscolaEnv
+from briscola_gym.envs.briscola_game import *
